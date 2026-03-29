@@ -1,0 +1,1 @@
+# Smart-resource-Management-For-Gonder-University-AI-integrated-
