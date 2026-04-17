@@ -1,19 +1,28 @@
 import express from "express";
+import {
+  assignTask,
+  updateTaskStatus
+} from "../controllers/maintenance.controller.js";
+
+import { authMiddleware } from "../middleware/auth.js";
+import { authorize } from "../middleware/role.js";
+
 const router = express.Router();
 
-// assign technician
-router.post("/assign", (req, res) => {});
+// assign → admin only
+router.post(
+  "/assign",
+  authMiddleware,
+  authorize(["ADMIN"]),
+  assignTask
+);
 
-// get all tasks
-router.get("/", (req, res) => {});
-
-// get single task
-router.get("/:id", (req, res) => {});
-
-// update task status
-router.patch("/:id/status", (req, res) => {});
-
-// delete task
-router.delete("/:id", (req, res) => {});
+// update → technician
+router.patch(
+  "/:id/status",
+  authMiddleware,
+  authorize(["TECHNICIAN"]),
+  updateTaskStatus
+);
 
 export default router;
