@@ -12,10 +12,72 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-model User{
-  id String @id @default(uuid())
-  name String
-  password String
-  role String
-  email String @unique
+enum Role {
+  ADMIN
+  DEPARTMENT_HEAD
+  DEAN
+  TECHNICIAN
+  STAFF
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+enum MaintenanceStatus {
+  ASSIGNED
+  IN_PROGRESS
+  DONE
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role
+
+  requests      Request[]
+  maintenance   Maintenance[] @relation("TechnicianTasks")
+}
+
+model Resource {
+  id        String   @id @default(uuid())
+  name      String
+  type      String
+  location  String
+  status    String
+  createdAt DateTime @default(now())
+
+  requests  Request[]
+}
+
+model Request {
+  id            String        @id @default(uuid())
+  justification String
+  status        RequestStatus @default(PENDING)
+  createdAt     DateTime      @default(now())
+
+  userId     String
+  resourceId String
+
+  user      User     @relation(fields: [userId], references: [id])
+  resource  Resource @relation(fields: [resourceId], references: [id])
+
+  maintenance Maintenance?
+}
+
+model Maintenance {
+  id            String            @id @default(uuid())
+  status        MaintenanceStatus @default(ASSIGNED)
+  createdAt     DateTime          @default(now())
+
+  requestId     String @unique
+  technicianId  String
+
+  request     Request @relation(fields: [requestId], references: [id])
+  technician  User    @relation("TechnicianTasks", fields: [technicianId], references: [id])
 }
